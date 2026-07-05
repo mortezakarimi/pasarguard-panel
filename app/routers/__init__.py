@@ -5,6 +5,7 @@ from . import (
     admin_role,
     core,
     client_template,
+    extension,
     group,
     home,
     host,
@@ -36,6 +37,7 @@ routers = [
     subscription.router,
     user_template.router,
     hwid.router,
+    extension.router,
 ]
 
 for router in routers:

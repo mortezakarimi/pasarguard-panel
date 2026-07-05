@@ -51,6 +51,12 @@ No need to ask for permission!
 
 ---
 
+## Extensions
+
+PasarGuard supports third-party extensions via Python entry points. See [`docs/extensions/README.md`](docs/extensions/README.md) for the author guide.
+
+---
+
 ## 🧠 Backend (FastAPI)
 
 The backend is built with **FastAPI** and **SQLAlchemy**:

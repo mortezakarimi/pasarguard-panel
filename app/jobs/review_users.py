@@ -4,6 +4,8 @@ from datetime import datetime as dt, timedelta as td, timezone as tz
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import notification, scheduler
+from app.extensions.emit import emit_hook
+from app.extensions.hooks import Hook
 from app.db import GetDB
 from app.db.models import User, UserStatus, ReminderType
 from app.db.crud.user import (
@@ -48,6 +50,10 @@ async def change_status(db: AsyncSession, db_user: User, status: UserStatus):
         return
 
     asyncio.create_task(notification.user_status_change(user, SYSTEM_ADMIN))
+    if status == UserStatus.expired:
+        emit_hook(Hook.USER_EXPIRED, user=user)
+    elif status == UserStatus.limited:
+        emit_hook(Hook.USER_DATA_LIMITED, user=user)
     logger.info(f'User "{user.username}" status changed to {status.value}')
 
 

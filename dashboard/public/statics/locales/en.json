@@ -128,6 +128,23 @@
   "groups": "Groups",
   "documentation": "Documentation",
   "discussionGroup": "Discussion Group",
+  "extensions": {
+    "title": "Extensions",
+    "subtitle": "Manage installed PasarGuard extensions.",
+    "open": "Open",
+    "enabled": "Enabled",
+    "back": "Back to extensions",
+    "notFound": "Extension not found.",
+    "loadError": "Failed to load extensions.",
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "empty": {
+      "title": "No extensions installed",
+      "description": "Install an extension package and add it to EXTENSIONS_ALLOWLIST in your .env file."
+    }
+  },
   "github": "GitHub",
   "community": "Community",
   "supportUs": "Support Us",

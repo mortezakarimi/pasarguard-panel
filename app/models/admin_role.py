@@ -91,6 +91,11 @@ class HwidsPermissions(_ResourcePermissions):
     delete: RoleActionValue | None = None
 
 
+class ExtensionsPermissions(_ResourcePermissions):
+    read: RoleActionValue | None = None
+    manage: RoleActionValue | None = None
+
+
 class RoleLimits(BaseModel):
     max_users: int | None = None
     data_limit_min: int | None = None
@@ -138,6 +143,7 @@ class RolePermissions(BaseModel):
     system: SystemPermissions | None = None
     hwids: HwidsPermissions | None = None
     admin_roles: CRUDPermissions | None = None
+    extensions: ExtensionsPermissions | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
