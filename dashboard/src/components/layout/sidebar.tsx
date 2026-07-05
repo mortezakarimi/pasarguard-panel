@@ -43,6 +43,7 @@ import {
   Network,
   Palette,
   PieChart,
+  Puzzle,
   RssIcon,
   Send,
   Settings,
@@ -74,6 +75,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const canReadNodeLogs = hasPermission(admin, 'nodes', 'logs')
   const canBulkCreateFromTemplate = hasPermission(admin, 'users', 'create') && canReadTemplates
   const canBulkUpdateUsers = hasScopeAll(admin, 'users', 'update')
+  const canReadExtensions = hasPermission(admin, 'extensions', 'read')
   const nodeNavItems = [
     ...(canReadNodes
       ? [
@@ -246,6 +248,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               title: 'adminRoles.title',
               url: '/admin-roles',
               icon: UserKey,
+            },
+          ]
+        : []),
+      ...(canReadExtensions
+        ? [
+            {
+              title: 'extensions.title',
+              url: '/extensions',
+              icon: Puzzle,
             },
           ]
         : []),

@@ -2,7 +2,6 @@
 
 from app.extensions.base import BaseExtension
 from app.extensions.exceptions import ExtensionNotFoundError
-from app.extensions.hooks import Hook
 from app.extensions.registry import ExtensionRegistry
 
 

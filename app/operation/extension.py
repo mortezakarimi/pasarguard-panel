@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import HTTPException
-from pydantic import BaseModel
 
 from app.db import AsyncSession
 from app.db.crud.extension import (

@@ -21,6 +21,9 @@ from app.models.user import SubscriptionUserResponse, UsersResponseWithInbounds
 from app.settings import hwid_settings, subscription_settings
 from app.subscription.share import encode_title, generate_subscription, setup_format_variables
 from app.templates import render_template
+from app.extensions.context import ExtensionContext
+from app.extensions.emit import collect_hook
+from app.extensions.hooks import Hook, collect_subscription_assets, group_subscription_fragments
 from app.utils.hwid import resolve_effective_hwid_settings
 from config import template_settings
 
@@ -398,12 +401,15 @@ class SubscriptionOperation(BaseOperation):
             format_variables = await self.get_format_variables(user)
             formatted_announce = self._format_announce(sub_settings, format_variables)
 
+            payload = self._build_subscription_body_payload(
+                user, links, formatted_announce, sub_settings, format_variables, is_hwid_enabled
+            )
+            payload = await self._enrich_subscription_payload(db, payload, user, links)
+
             return HTMLResponse(
                 render_template(
                     template,
-                    self._build_subscription_body_payload(
-                        user, links, formatted_announce, sub_settings, format_variables, is_hwid_enabled
-                    ),
+                    payload,
                 )
             )
         else:
@@ -539,7 +545,46 @@ class SubscriptionOperation(BaseOperation):
                 format_variables,
                 is_hwid_enabled=is_hwid_enabled,
             ),
+            "extension_fragments": {
+                "head": [],
+                "before_content": [],
+                "after_user_info": [],
+                "after_apps": [],
+                "footer": [],
+            },
+            "extension_assets": {"css": [], "js": []},
         }
+
+    async def _enrich_subscription_payload(
+        self,
+        db: AsyncSession,
+        payload: dict[str, Any],
+        user: UsersResponseWithInbounds,
+        links: list[str],
+    ) -> dict[str, Any]:
+        ctx = ExtensionContext(db=db, extension_id="system")
+        fragments = await collect_hook(
+            Hook.SUBSCRIPTION_PAGE_RENDER,
+            ctx=ctx,
+            user=payload["user"],
+            links=links,
+            announce=payload.get("announce"),
+            apps=payload.get("apps"),
+        )
+        if not fragments:
+            return payload
+
+        grouped = group_subscription_fragments(fragments)
+        assets = collect_subscription_assets(fragments)
+        payload["extension_fragments"] = {
+            "head": grouped.get("head", []),
+            "before_content": grouped.get("before_content", []),
+            "after_user_info": grouped.get("after_user_info", []),
+            "after_apps": grouped.get("after_apps", []),
+            "footer": grouped.get("footer", []),
+        }
+        payload["extension_assets"] = assets
+        return payload
 
     def _build_raw_subscription_payload(
         self,

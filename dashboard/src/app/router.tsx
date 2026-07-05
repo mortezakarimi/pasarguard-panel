@@ -40,6 +40,8 @@ const TemplatesLayout = lazyWithChunkRecovery(() => import('../pages/_dashboard.
 const UserTemplates = lazyWithChunkRecovery(() => import('../pages/_dashboard.templates.user'))
 const ClientTemplates = lazyWithChunkRecovery(() => import('../pages/_dashboard.templates.client'))
 const Users = lazyWithChunkRecovery(() => import('../pages/_dashboard.users'))
+const ExtensionsPage = lazyWithChunkRecovery(() => import('../pages/_dashboard.extensions'))
+const ExtensionDetailPage = lazyWithChunkRecovery(() => import('../pages/_dashboard.extensions.$extensionId'))
 const Login = lazyWithChunkRecovery(() => import('../pages/login'))
 
 // Component to handle default settings routing based on user permissions
@@ -220,6 +222,22 @@ export const router = createHashRouter([
         element: (
           <Suspense fallback={<LoadingSpinner />}>
             <AdminRolesPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: '/extensions',
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <ExtensionsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: '/extensions/:extensionId',
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <ExtensionDetailPage />
           </Suspense>
         ),
       },

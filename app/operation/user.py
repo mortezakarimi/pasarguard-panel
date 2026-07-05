@@ -10,6 +10,8 @@ from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
 
 from app import notification
+from app.extensions.emit import emit_hook
+from app.extensions.hooks import Hook
 from app.db import AsyncSession
 from app.db.crud.admin import get_admin
 from app.db.crud.bulk import (
@@ -670,6 +672,7 @@ class UserOperation(BaseOperation):
         logger.info(f'New user "{db_user.username}" with id "{db_user.id}" added by admin "{admin.username}"')
 
         asyncio.create_task(notification.create_user(user, admin))
+        emit_hook(Hook.USER_CREATED, user=user, admin=admin)
 
         return user
 
@@ -815,6 +818,7 @@ class UserOperation(BaseOperation):
         logger.info(f'User "{user.username}" with id "{db_user.id}" modified by admin "{admin.username}"')
 
         asyncio.create_task(notification.modify_user(user, admin))
+        emit_hook(Hook.USER_MODIFIED, user=user, admin=admin)
 
         if user.status != old_status:
             asyncio.create_task(notification.user_status_change(user, admin))
@@ -911,6 +915,7 @@ class UserOperation(BaseOperation):
         await sync_remove_user(user)
 
         asyncio.create_task(notification.remove_user(user, admin))
+        emit_hook(Hook.USER_DELETED, user=user, admin=admin)
         logger.info(f'User "{db_user.username}" with id "{db_user.id}" deleted by admin "{admin.username}"')
         return {}
 

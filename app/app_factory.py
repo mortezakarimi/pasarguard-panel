@@ -103,11 +103,17 @@ def create_app() -> FastAPI:
     on_startup(_validate_paths)
 
     if runtime_settings.role.runs_panel:
+        from app.extensions.loader import load_extensions
+        from app.extensions.router import register_extension_routes
+
+        load_extensions()
+
         import dashboard
         from app import telegram  # noqa: F401
         from app.routers import api_router
 
         dashboard.setup_dashboard(app)
+        register_extension_routes(app)
         app.include_router(api_router)
 
     if runtime_settings.role.runs_node:

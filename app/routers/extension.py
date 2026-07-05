@@ -65,6 +65,6 @@ async def set_extension_enabled(
     extension_id: str,
     payload: ExtensionEnabledUpdate,
     db: AsyncSession = Depends(get_db),
-    _: AdminDetails = Depends(require_owner()),
+    _: AdminDetails = Depends(require_owner),
 ):
     return await extension_operator.set_enabled(db, extension_id, payload)

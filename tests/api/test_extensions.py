@@ -1,12 +1,14 @@
 """API tests for extension management endpoints."""
 
-from fastapi import status
+import asyncio
 
+from fastapi import status
+from sqlalchemy import delete
+
+from app.db.models import ExtensionSettingsRow
 from app.extensions.base import BaseExtension
-from app.extensions.hooks import Hook
-from app.extensions.models import ExtensionUIManifest
 from app.extensions.registry import extension_registry
-from tests.api import client
+from tests.api import TestSession, client
 from tests.api.helpers import auth_headers
 
 
@@ -17,12 +19,23 @@ class _ApiTestExtension(BaseExtension):
     permissions = []
 
 
+def _clear_extension_settings() -> None:
+    async def _run() -> None:
+        async with TestSession() as session:
+            await session.execute(delete(ExtensionSettingsRow))
+            await session.commit()
+
+    asyncio.run(_run())
+
+
 def setup_function():
     extension_registry.clear()
+    _clear_extension_settings()
 
 
 def teardown_function():
     extension_registry.clear()
+    _clear_extension_settings()
 
 
 def test_list_extensions_empty(access_token):

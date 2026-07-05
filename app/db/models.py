@@ -896,3 +896,26 @@ class TempKey(Base):
     expires_at: Mapped[dt] = mapped_column(DateTime(timezone=True))
     used_at: Mapped[Optional[dt]] = mapped_column(DateTime(timezone=True), default=None)
     used_by_ip: Mapped[Optional[str]] = mapped_column(String(45), default=None)
+
+
+class ExtensionSettingsRow(Base):
+    __tablename__ = "extension_settings"
+
+    extension_id: Mapped[str] = mapped_column(String(128), primary_key=True, init=True)
+    settings: Mapped[dict] = mapped_column(PostgresJSONB, default_factory=dict)
+    enabled: Mapped[bool] = mapped_column(default=True, server_default="1")
+    created_at: Mapped[dt] = mapped_column(DateTime(timezone=True), default_factory=lambda: dt.now(tz.utc), init=False)
+    updated_at: Mapped[dt] = mapped_column(
+        DateTime(timezone=True),
+        default_factory=lambda: dt.now(tz.utc),
+        onupdate=lambda: dt.now(tz.utc),
+        init=False,
+    )
+
+
+class ExtensionMigration(Base):
+    __tablename__ = "extension_migrations"
+
+    extension_id: Mapped[str] = mapped_column(String(128), primary_key=True, init=True)
+    revision: Mapped[str] = mapped_column(String(64), primary_key=True, init=True)
+    applied_at: Mapped[dt] = mapped_column(DateTime(timezone=True), default_factory=lambda: dt.now(tz.utc), init=False)

@@ -7,10 +7,10 @@ from importlib.metadata import entry_points
 
 from app import on_shutdown, on_startup
 from app.extensions.exceptions import ExtensionLoadError
-from app.extensions.hooks import Hook, hook_bus
+from app.extensions.hooks import hook_bus
 from app.extensions.registry import extension_registry
 from app.utils.logger import get_logger
-from config import extension_settings
+from config import extension_settings, runtime_settings
 
 logger = get_logger("extensions.loader")
 
@@ -84,6 +84,11 @@ def load_extensions(force: bool = False) -> list[str]:
 
     if not extension_settings.enabled:
         logger.info("Extensions are disabled via EXTENSIONS_ENABLED")
+        _loaded = True
+        return []
+
+    if runtime_settings.testing and not force:
+        logger.debug("Skipping automatic extension discovery in testing mode")
         _loaded = True
         return []
 

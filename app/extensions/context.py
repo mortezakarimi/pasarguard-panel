@@ -55,7 +55,12 @@ class ExtensionContext:
 
     async def modify_user(self, username: str, data: UserModify, admin: AdminDetails) -> UserResponse:
         """Modify a user via core business logic."""
-        return await self._user_operation.modify_user(self._db, username, data, admin)
+        from app.db.crud.user import get_user
+
+        db_user = await get_user(self._db, username)
+        if db_user is None:
+            raise ValueError(f"User '{username}' not found")
+        return await self._user_operation.modify_user_by_id(self._db, db_user.id, data, admin)
 
     async def get_settings(self) -> dict[str, Any]:
         """Return persisted settings for this extension."""

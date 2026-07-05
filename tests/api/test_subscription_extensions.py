@@ -7,7 +7,7 @@ from app.extensions.hooks import Hook
 from app.extensions.models import SubscriptionFragment, SubscriptionSlot
 from app.extensions.registry import extension_registry
 from tests.api import client
-from tests.api.helpers import auth_headers, create_group, create_user, unique_name
+from tests.api.helpers import create_core, create_group, create_user, unique_name
 
 
 class _SubscriptionTestExtension(BaseExtension):
@@ -42,6 +42,7 @@ def test_subscription_page_includes_extension_fragment(access_token):
 
     _register_hooks(_SubscriptionTestExtension())
 
+    create_core(access_token)
     group = create_group(access_token, name=unique_name("ext-sub"))
     user = create_user(access_token, group_ids=[group["id"]], username=unique_name("extsub"))
 

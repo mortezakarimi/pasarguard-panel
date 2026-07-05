@@ -6,7 +6,7 @@ from aiorwlock import RWLock
 
 from app.db.models import Settings
 
-from . import GetTestDB, TestSession, client
+from . import GetTestDB, client
 
 
 # Disable caching for all tests
@@ -20,12 +20,31 @@ def dummy_cached(*args, **kwargs):
 aiocache.cached = dummy_cached
 
 
+GETDB_PATCH_TARGETS = (
+    "app.db",
+    "app.settings",
+    "app.core.manager",
+    "app.core.hosts",
+    "app.node.worker",
+    "app.jobs.node_checker",
+    "app.jobs.review_users",
+    "app.jobs.send_notifications",
+    "app.jobs.record_usages",
+    "app.jobs.inbound",
+    "app.subscription.client_templates",
+    "app.utils.jwt",
+)
+
+
 @pytest.fixture(autouse=True)
 def mock_db_session(monkeypatch: pytest.MonkeyPatch):
-    db_session = MagicMock(spec=TestSession)
-    monkeypatch.setattr("app.settings.GetDB", db_session)
-    monkeypatch.setattr("app.subscription.client_templates.GetDB", GetTestDB)
-    return db_session
+    import importlib
+
+    for target in GETDB_PATCH_TARGETS:
+        module = importlib.import_module(target)
+        if hasattr(module, "GetDB"):
+            monkeypatch.setattr(module, "GetDB", GetTestDB)
+    return GetTestDB
 
 
 @pytest.fixture(autouse=True)
